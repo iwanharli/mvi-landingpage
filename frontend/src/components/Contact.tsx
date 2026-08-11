@@ -56,12 +56,6 @@ export default function Contact() {
                 <dd className="mt-2">{contact.phone}</dd>
               </div>
             )}
-            <div>
-              <dt className="text-xs font-bold uppercase tracking-[0.2em] text-teal">
-                {contact.linkedinLabel}
-              </dt>
-              <dd className="mt-2">{contact.linkedin}</dd>
-            </div>
           </dl>
         </div>
       </div>

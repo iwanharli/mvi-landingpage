@@ -104,8 +104,6 @@ export type Content = {
     emails: string[]
     phoneLabel: string
     phone: string
-    linkedinLabel: string
-    linkedin: string
   }
   footer: {
     navTitle: string

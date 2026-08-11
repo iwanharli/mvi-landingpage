@@ -326,8 +326,6 @@ export const id: Content = {
     emails: ['corporate@mvi-id.com'],
     phoneLabel: 'Telepon / WhatsApp',
     phone: '+62 8xx-xxxx-xxxx',
-    linkedinLabel: 'LinkedIn',
-    linkedin: 'PT Mitra Verifikasi Indonesia',
   },
 
   footer: {

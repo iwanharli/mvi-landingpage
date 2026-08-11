@@ -62,12 +62,9 @@ export default function Footer() {
           <FooterCol title={footer.sectorsTitle} links={sectorLinks} />
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-navy-100/70 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 border-t border-white/10 pt-6 text-sm text-navy-100/70">
           <p>
             © {new Date().getFullYear()} {contact.company}. {footer.rights}
-          </p>
-          <p>
-            {contact.linkedinLabel}: {contact.linkedin}
           </p>
         </div>
       </div>
