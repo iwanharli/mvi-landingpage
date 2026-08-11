@@ -15,7 +15,7 @@ export default function Contact() {
 
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <a
-                href={`mailto:${contact.emails[1]}`}
+                href={`mailto:${contact.emails[0]}`}
                 className="rounded-full bg-teal px-7 py-3 text-center text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-teal-600"
               >
                 {hero.primaryCta}
