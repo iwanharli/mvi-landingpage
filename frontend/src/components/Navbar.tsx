@@ -2,6 +2,48 @@ import { useEffect, useState } from 'react'
 import Logo from './Logo'
 import LanguageSwitcher from './LanguageSwitcher'
 import { useLocale, InternalLink } from '../LocaleContext'
+import type { NavItem } from '../content'
+
+/**
+ * Section mana yang sedang dibaca pengunjung, untuk menyorot item menu yang
+ * cocok. Dianggap "aktif" section yang berpotongan dengan pita horizontal di
+ * 45%-50% tinggi viewport — pita ini kira-kira sejajar mata saat scroll,
+ * bukan sekadar section yang baru mulai muncul di bawah layar.
+ */
+function useActiveSection(navItems: NavItem[], enabled: boolean) {
+  const [active, setActive] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!enabled) {
+      setActive(null)
+      return
+    }
+
+    const elements = navItems
+      .map((item) => document.getElementById(item.href.slice(1)))
+      .filter((el): el is HTMLElement => el !== null)
+
+    if (elements.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting)
+        if (visible.length === 0) return
+
+        const topMost = visible.reduce((a, b) =>
+          a.boundingClientRect.top < b.boundingClientRect.top ? a : b,
+        )
+        setActive(topMost.target.id)
+      },
+      { rootMargin: '-45% 0px -50% 0px', threshold: 0 },
+    )
+
+    elements.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [navItems, enabled])
+
+  return active
+}
 
 export default function Navbar() {
   const { locale, route, t } = useLocale()
@@ -20,6 +62,7 @@ export default function Navbar() {
   const onDetailPage = route.name !== 'home'
   const solid = scrolled || open || onDetailPage
   const homePath = locale === 'en' ? '/en' : ''
+  const activeId = useActiveSection(t.nav, route.name === 'home')
 
   return (
     <header
@@ -34,17 +77,28 @@ export default function Navbar() {
         </InternalLink>
 
         <nav className="hidden items-center gap-8 lg:flex">
-          {t.nav.map((item) => (
-            <InternalLink
-              key={item.href}
-              href={homePath + item.href}
-              className={`text-sm font-medium transition-colors ${
-                solid ? 'text-navy hover:text-teal-text' : 'text-white hover:text-teal'
-              }`}
-            >
-              {item.label}
-            </InternalLink>
-          ))}
+          {t.nav.map((item) => {
+            const isActive = activeId === item.href.slice(1)
+
+            return (
+              <InternalLink
+                key={item.href}
+                href={homePath + item.href}
+                aria-current={isActive ? 'true' : undefined}
+                className={`text-sm font-medium transition-colors ${
+                  isActive
+                    ? solid
+                      ? 'font-semibold text-teal-text'
+                      : 'font-semibold text-teal'
+                    : solid
+                      ? 'text-navy hover:text-teal-text'
+                      : 'text-white hover:text-teal'
+                }`}
+              >
+                {item.label}
+              </InternalLink>
+            )
+          })}
           <LanguageSwitcher solid={solid} />
           <InternalLink
             href={`${homePath}#contact`}
@@ -76,16 +130,29 @@ export default function Navbar() {
       {open && (
         <nav className="border-t border-navy-100 bg-white lg:hidden">
           <div className="mvi-container flex flex-col py-2">
-            {t.nav.map((item) => (
-              <InternalLink
-                key={item.href}
-                href={homePath + item.href}
-                onClick={() => setOpen(false)}
-                className="border-b border-navy-100 py-3 text-sm font-medium text-navy last:border-0"
-              >
-                {item.label}
-              </InternalLink>
-            ))}
+            {t.nav.map((item) => {
+              const isActive = activeId === item.href.slice(1)
+
+              return (
+                <InternalLink
+                  key={item.href}
+                  href={homePath + item.href}
+                  onClick={() => setOpen(false)}
+                  aria-current={isActive ? 'true' : undefined}
+                  className={`flex items-center gap-2 border-b border-navy-100 py-3 text-sm last:border-0 ${
+                    isActive ? 'font-semibold text-teal-text' : 'font-medium text-navy'
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`h-1.5 w-1.5 shrink-0 rounded-full bg-teal transition-opacity ${
+                      isActive ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
+                  {item.label}
+                </InternalLink>
+              )
+            })}
             <InternalLink
               href={`${homePath}#contact`}
               onClick={() => setOpen(false)}
