@@ -5,6 +5,24 @@ import { dictionaries, localeFromPath, pathForLocale, type Content, type Locale 
 export const SITE_URL = 'https://mvi-id.com'
 
 /**
+ * Cookie penanda preferensi bahasa. Server (nginx) membaca cookie yang sama
+ * untuk menentukan redirect otomatis pada kunjungan pertama ke "/" — lihat
+ * blok `location = /` di config nginx. Begitu cookie ini ada (baik dari
+ * tebakan negara di server atau klik manual di sini), tebakan negara tidak
+ * lagi dipakai; preferensi eksplisit pengunjung selalu menang.
+ */
+const LANG_COOKIE = 'mvi_lang'
+
+function setLangCookie(locale: Locale) {
+  const oneYear = 60 * 60 * 24 * 365
+  document.cookie = `${LANG_COOKIE}=${locale}; path=/; max-age=${oneYear}; SameSite=Lax; Secure`
+}
+
+function hasLangCookie(): boolean {
+  return document.cookie.split('; ').some((c) => c.startsWith(`${LANG_COOKIE}=`))
+}
+
+/**
  * Router path sangat minim untuk situs kecil ini — dua jenis halaman saja
  * (beranda, detail sektor) dikali dua bahasa. Digabung satu context dengan
  * locale supaya path selalu jadi satu-satunya sumber kebenaran, tidak ada
@@ -74,11 +92,19 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
 
   const setLocale = useCallback(
     (next: Locale) => {
+      setLangCookie(next)
       const slug = route.name === 'sector-detail' ? route.slug : undefined
       navigate(pathForLocale(next, slug))
     },
     [route, navigate],
   )
+
+  // Kunjungan pertama tanpa preferensi tersimpan: catat bahasa yang sedang
+  // ditampilkan (baik hasil tebakan negara di server maupun default) supaya
+  // kunjungan berikutnya konsisten tanpa perlu server menebak ulang.
+  useEffect(() => {
+    if (!hasLangCookie()) setLangCookie(locale)
+  }, [locale])
 
   // Sinkronkan atribut & meta dokumen dengan bahasa dan halaman aktif
   useEffect(() => {
