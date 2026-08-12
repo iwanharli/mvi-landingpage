@@ -323,7 +323,7 @@ export const id: Content = {
     address:
       'Graha Surveyor Indonesia, Jl. Jend. Gatot Subroto, Lt.19 Kav. 56, Jakarta 12950',
     emailLabel: 'Email',
-    emails: ['corporate@mvi-id.com'],
+    emails: ['corporate@mvi-id.com', 'legal@mvi-id.com'],
     phoneLabel: 'Telepon / WhatsApp',
     phone: '+62 8xx-xxxx-xxxx',
   },
